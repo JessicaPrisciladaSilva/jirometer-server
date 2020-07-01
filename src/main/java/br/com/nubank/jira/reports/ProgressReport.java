@@ -1,7 +1,7 @@
 package br.com.nubank.jira.reports;
 
 import com.atlassian.jira.issue.search.SearchException;
-import com.atlassian.jira.issue.search.SearchProviderFactoryImpl;
+import com.atlassian.jira.issue.search.SearchResults;
 import com.atlassian.jira.jql.builder.JqlQueryBuilder;
 import com.atlassian.jira.plugin.report.impl.AbstractReport;
 import com.atlassian.jira.issue.search.SearchProvider;
@@ -9,9 +9,9 @@ import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.util.ParameterUtils;
 import com.atlassian.jira.web.action.ProjectActionSupport;
+import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +35,8 @@ public class ProgressReport extends AbstractReport {
     public String generateReportHtml(ProjectActionSupport projectActionSupport, Map map) throws Exception {
         Map<String, Object> velocityParams = new HashMap<>();
         velocityParams.put("projectName", projectManager.getProjectObj(projectId).getName());
-        velocityParams.put("counter", getOpenIssueCount(projectActionSupport.getLoggedInUser(),projectId));
+        SearchResults openIssueCount = getOpenIssueCount(projectActionSupport.getLoggedInUser(), projectId);
+        velocityParams.put("counter", openIssueCount.getIssues().stream().map(p->p.getSummary()).reduce("",(p,r)->p.concat(", ").concat(r)));
 
         return descriptor.getHtml("view", velocityParams);
     }
@@ -50,9 +51,10 @@ public class ProgressReport extends AbstractReport {
         }
     }
 
-    private long getOpenIssueCount(ApplicationUser user, Long projectId) throws SearchException {
+    private SearchResults getOpenIssueCount(ApplicationUser user, Long projectId) throws SearchException {
         JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
         Query query = queryBuilder.where().project(projectId).buildQuery();
-        return searchProvider.searchCount(query, user);
+        PagerFilter page= new PagerFilter();
+        return searchProvider.search(query,user,page);
     }
 }
