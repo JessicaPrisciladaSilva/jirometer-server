@@ -36,8 +36,8 @@ public class ProgressReport extends AbstractReport {
         Map<String, Object> velocityParams = new HashMap<>();
         velocityParams.put("projectName", projectManager.getProjectObj(projectId).getName());
         SearchResults openIssueCount = getOpenIssueCount(projectActionSupport.getLoggedInUser(), projectId);
-        velocityParams.put("counter", openIssueCount.getIssues().stream().map(p->p.getSummary()).reduce("",(p,r)->p.concat(", ").concat(r)));
-
+        velocityParams.put("names", openIssueCount.getIssues().stream().map(p->p.getSummary()).reduce("",(p,r)->p.concat(", ").concat(r)));
+        velocityParams.put("issues", openIssueCount.getIssues());
         return descriptor.getHtml("view", velocityParams);
     }
 

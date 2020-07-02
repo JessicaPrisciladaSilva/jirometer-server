@@ -1,4 +1,15 @@
 <h1>view.vm</h1>
 
 <h1>$projectName</h1>
-<h2>quantidade: $counter</h2>
+<h2>names: $counter</h2>
+
+#foreach ($issue in $issues)
+<h3>$issue</h3>
+<h3>summary: $issue.getSummary()</h3>
+<h3>resolutionDate: $issue.getResolutionDate()</h3>
+<h3>resolution: $issue.getResolution()</h3>
+<h3>dateupdate: $issue.getUpdated()</h3>
+<h3>datecreated:$issue.getCreated()</h3>
+<h3>dateDue: $issue.getDueDate()</h3>
+<h3>issueType: $issue.getIssueType()</h3>
+#end
